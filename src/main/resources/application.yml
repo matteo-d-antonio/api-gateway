@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        # Route per il servizio "Corsi"
+        - id: corsi_service_route
+          uri: http://localhost:8081  # Indirizzo fisico del microservizio Corsi
+          predicates:
+            - Path=/api/corsi/**  # Ritorna tutte le richieste che iniziano con /api/corsi
+
+        # Route per il servizio "Docenti"
+        - id: docenti_service_route
+          uri: http://localhost:8082  # Indirizzo fisico del microservizio Docenti
+          predicates:
+            - Path=/api/docenti/**   # Ritorna tutte le richieste che iniziano con /api/docenti
+
+        - id: discenti_service_route
+          uri: http://localhost:8083  # Indirizzo fisico del microservizio Docenti
+          predicates:
+            - Path=/api/discenti/**
+
+      # Filtro per limitare la velocità delle richieste
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 10  # 10 richieste al secondo
+            redis-rate-limiter.burstCapacity: 20  # 20 richieste al picco
+
+  # Sicurezza OAuth2 (JWT)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080  # Cambia con l'issuer reale del tuo JWT
+          jwk-set-uri: http://localhost:8080/.well-known/jwks.json  # URI per recuperare le chiavi del JWT
+
+  # Configurazione per CORS
+  cors:
+    allowed-origins: "*"  # Sostituisci con il dominio del frontend se necessario
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
