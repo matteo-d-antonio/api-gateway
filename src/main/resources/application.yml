@@ -17,19 +17,19 @@ spring:
           predicates:
             - Path=/api/docenti/**   # Ritorna tutte le richieste che iniziano con /api/docenti
 
+        # Route per il servizio "Discenti"
         - id: discenti_service_route
-          uri: http://localhost:8083  # Indirizzo fisico del microservizio Docenti
+          uri: http://localhost:8083  # Indirizzo fisico del microservizio Discenti
           predicates:
-            - Path=/api/discenti/**
+            - Path=/api/discenti/**   # Ritorna tutte le richieste che iniziano con /api/discenti
 
-      # Filtro per limitare la velocità delle richieste
+      # Filtro per limitare la velocità delle richieste (Rate Limiting)
       default-filters:
         - name: RequestRateLimiter
           args:
             redis-rate-limiter.replenishRate: 10  # 10 richieste al secondo
             redis-rate-limiter.burstCapacity: 20  # 20 richieste al picco
 
-  # Sicurezza OAuth2 (JWT)
   security:
     oauth2:
       resourceserver:
@@ -37,11 +37,11 @@ spring:
           issuer-uri: http://localhost:8080  # Cambia con l'issuer reale del tuo JWT
           jwk-set-uri: http://localhost:8080/.well-known/jwks.json  # URI per recuperare le chiavi del JWT
 
-  # Configurazione per CORS
-  cors:
-    allowed-origins: "*"  # Sostituisci con il dominio del frontend se necessario
-    allowed-methods:
-      - GET
-      - POST
-      - PUT
-      - DELETE
+    # Configurazione per CORS (Cross-Origin Resource Sharing)
+    cors:
+      allowed-origins: "*"  # Sostituisci con il dominio del frontend se necessario
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE

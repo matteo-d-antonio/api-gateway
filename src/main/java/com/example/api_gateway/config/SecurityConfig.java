@@ -1,27 +1,29 @@
-package com.example.apigateway.config;
+package com.example.api_gateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtBearerTokenAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests()
-                .antMatchers("/api/corsi/**").authenticated()  // Richiede autenticazione per i corsi
-                .antMatchers("/api/docenti/**").authenticated()  // Richiede autenticazione per i docenti
-                .antMatchers("/api/discenti/**").authenticated()
-                .anyRequest().permitAll()  // Consenti tutte le altre richieste senza autenticazione
-                .and()
-                .oauth2ResourceServer()
-                .jwt();
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        .requestMatchers("/api/corsi/**", "/api/docenti/**", "/api/discenti/**") // Proteggi le rotte
+                        .authenticated() // Richiedi autenticazione per queste rotte
+                        .anyRequest().permitAll() // Permetti tutte le altre richieste senza autenticazione
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(new JwtAuthenticationConverter()) // Configura il JWT
+                        )
+                );
+        return http.build(); // Restituisci il SecurityFilterChain configurato
     }
 }
